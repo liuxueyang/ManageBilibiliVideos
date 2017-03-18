@@ -22,3 +22,4 @@ perl ./touch.pl PATH_TO_DIRECTORY
 adb pull /storage/emulated/0/Android/data/tv.danmaku.bili/download/s_5615
 ```
 In this case, PATH_TO_DIRECTORY is the absolute path to `s_5615`. Those renamed videos is placed to the directory where the script runs.
+4. If there are multiple `.flv` files for a video. The script will merge them into one. This requires `ffmpeg`.
