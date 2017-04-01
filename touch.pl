@@ -3,6 +3,9 @@
 # Date  : 2017/03/16 19:14:35
 # Finish: 2017/03/16 22:04:07
 
+# Update: 2017/04/01 23:14:19
+# file extension could be .blv
+
 # NOTE: There MUST NOT be any non-ascii character in the path!!!!!!!!!!
 
 use strict;
@@ -23,7 +26,7 @@ opendir(DIR, $cur_dir) or dir $!;
 
 while (my $file = readdir(DIR)) {
     next if ($file =~ /^\./);
-    
+
     # get index_title
     my $json_file = $cur_dir . "/$file" . '/entry.json';
 
@@ -37,11 +40,15 @@ while (my $file = readdir(DIR)) {
     my $json = JSON->new;
     my $data = $json->decode($json_text);
 
+    # REMEMBER TO CHANGE THIS!
     # get title from json file
-    
+
+    # music set
+    # my $index = $data->{'page_data'}->{'part'};
+
     # bonobono
     my $index = $data->{'ep'}{'index'} . $data->{'ep'}{'index_title'};
-    
+
     # touch
     # my $index = $data->{'title'};
 
@@ -52,8 +59,11 @@ while (my $file = readdir(DIR)) {
     while (my $subfile = readdir(SUBDIR)) {
 	next if ($subfile =~ /^\./);
 	if (-d "$subdir/$subfile") {
+	    # What if there are multiple mp4 files? Is that possible?
+	    # I assume it will not happen. :P Maybe there should only be
+	    # multiple flv files. :)
 	    if ($subfile =~ /mp4/) {
-		# only rename
+		# only needs to rename
 		opendir(DSTDIR, "$subdir/$subfile");
 		while (my $dstfile = readdir(DSTDIR)) {
 		    next if ($dstfile =~ /^\./);
@@ -65,23 +75,26 @@ while (my $file = readdir(DIR)) {
 		}
 		closedir(DSTDIR);
 	    }
-	    if ($subfile =~ /flv/) {
+	    if ($subfile =~ /[bf]lv/) {
 		# concat flv files
 		opendir(DSTDIR, "$subdir/$subfile");
 		my @flv = ();
+
 		while (my $dstfile = readdir(DSTDIR)) {
 		    next if ($dstfile =~ /^\./);
-		    if ($dstfile =~ /flv$/) {
+		    if ($dstfile =~ /[bf]lv$/) {
 			push @flv, $dstfile;
 		    }
 		}
+
 		# if there are more than 1 flv videos: merge and rename
-		if (@flv > 1) {		    
+		if (@flv > 1) {
 		    @flv = sort { $a cmp $b } @flv;
 		    @flv = map { "file './$_'" } @flv;
 		    my $mylist = "$subdir/$subfile/mylist.txt";
 		    open (my $fh, ">", $mylist)
 			or dir $!;
+
 		    for (@flv) { print $fh "$_\n"; }
 		    close($fh);
 		    say "$subdir/$subfile";
